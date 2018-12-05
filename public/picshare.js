@@ -3869,11 +3869,11 @@ function _VirtualDom_dekey(keyedNode)
 		b: keyedNode.b
 	};
 }
-var author$project$Picshare$initialModel = {caption: 'Surfing', url: 'https://programming-elm.com/1.jpg'};
+var elm$core$Basics$False = {$: 'False'};
+var author$project$Picshare$initialModel = {caption: 'Surfing', liked: false, url: 'https://programming-elm.com/1.jpg'};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4363,9 +4363,11 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$a = _VirtualDom_node('a');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$figure = _VirtualDom_node('figure');
 var elm$html$Html$h2 = _VirtualDom_node('h2');
+var elm$html$Html$i = _VirtualDom_node('i');
 var elm$html$Html$img = _VirtualDom_node('img');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
@@ -4385,6 +4387,7 @@ var elm$html$Html$Attributes$src = function (url) {
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
 var author$project$Picshare$viewDetailedPhoto = function (model) {
+	var buttonCls = model.liked ? 'fas fa-heart' : 'far fa-heart';
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
@@ -4424,7 +4427,23 @@ var author$project$Picshare$viewDetailedPhoto = function (model) {
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(model.caption)
+										elm$html$Html$text(model.caption),
+										A2(
+										elm$html$Html$a,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('like-button')
+											]),
+										_List_fromArray(
+											[
+												A2(
+												elm$html$Html$i,
+												_List_fromArray(
+													[
+														elm$html$Html$Attributes$class(buttonCls)
+													]),
+												_List_Nil)
+											]))
 									]))
 							]))
 					]))
