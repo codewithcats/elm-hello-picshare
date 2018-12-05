@@ -3869,6 +3869,7 @@ function _VirtualDom_dekey(keyedNode)
 		b: keyedNode.b
 	};
 }
+var author$project$Picshare$initialModel = {caption: 'Surfing', url: 'https://programming-elm.com/1.jpg'};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -4383,88 +4384,90 @@ var elm$html$Html$Attributes$src = function (url) {
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
-var author$project$Picshare$viewDetailedPhoto = F2(
-	function (url, caption) {
-		return A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('detailed-photo')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$figure,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('image')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$img,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$src(url)
-								]),
-							_List_Nil),
-							A2(
-							elm$html$Html$div,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('photo-info')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									elm$html$Html$h2,
-									_List_fromArray(
-										[
-											elm$html$Html$Attributes$class('subtitle photo-caption')
-										]),
-									_List_fromArray(
-										[
-											elm$html$Html$text(caption)
-										]))
-								]))
-						]))
-				]));
-	});
+var author$project$Picshare$viewDetailedPhoto = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('detailed-photo')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$figure,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('image')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$img,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$src(model.url)
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('photo-info')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$h2,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('subtitle photo-caption')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text(model.caption)
+									]))
+							]))
+					]))
+			]));
+};
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$nav = _VirtualDom_node('nav');
-var author$project$Picshare$main = A2(
-	elm$html$Html$div,
-	_List_Nil,
-	_List_fromArray(
-		[
-			A2(
-			elm$html$Html$nav,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('navbar')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('navbar-brand')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$h1,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('title navbar-item')
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('Picshare')
-								]))
-						]))
-				])),
-			A2(author$project$Picshare$viewDetailedPhoto, 'https://programming-elm.com/1.jpg', 'Surfing')
-		]));
+var author$project$Picshare$view = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$nav,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('navbar')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('navbar-brand')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$h1,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('title navbar-item')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Picshare')
+									]))
+							]))
+					])),
+				author$project$Picshare$viewDetailedPhoto(model)
+			]));
+};
+var author$project$Picshare$main = author$project$Picshare$view(author$project$Picshare$initialModel);
 _Platform_export({'Picshare':{'init':_VirtualDom_init(author$project$Picshare$main)(0)(0)}});}(this));

@@ -3,22 +3,29 @@ module Picshare exposing (main)
 import Html exposing (..)
 import Html.Attributes exposing (class, src)
 
-viewDetailedPhoto : String -> String -> Html msg
-viewDetailedPhoto url caption =
+initialModel : { url : String, caption : String }
+initialModel =
+  {
+    url = "https://programming-elm.com/1.jpg",
+    caption = "Surfing"
+  }
+
+viewDetailedPhoto : { url : String, caption : String } -> Html msg
+viewDetailedPhoto model =
   div [ class "detailed-photo" ]
     [
       figure [ class "image" ]
         [
-          img [ src url ] [],
+          img [ src model.url ] [],
           div [ class "photo-info" ]
             [
-              h2 [ class "subtitle photo-caption" ] [ text caption ]
+              h2 [ class "subtitle photo-caption" ] [ text model.caption ]
             ]
         ]
     ]
 
-main : Html msg
-main =
+view : { url : String, caption : String } -> Html msg
+view model =
   div []
     [
       nav [ class "navbar" ]
@@ -28,5 +35,8 @@ main =
               h1 [ class "title navbar-item" ] [ text "Picshare" ]
             ]
         ],
-      viewDetailedPhoto "https://programming-elm.com/1.jpg" "Surfing"
+      viewDetailedPhoto model
     ]
+
+main : Html msg
+main = view initialModel
