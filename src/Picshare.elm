@@ -16,26 +16,27 @@ initialModel =
   }
 
 type Msg =
-  Like
-  | Unlike
+  ToggleLike
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
-    Like -> { model | liked = True }
-    Unlike -> { model | liked = False }
+    ToggleLike -> { model | liked = not model.liked }
+
+viewLikeButton : Model -> Html Msg
+viewLikeButton model =
+  let
+    buttonCls =
+      if model.liked then "fas fa-heart"
+      else "far fa-heart"
+  in
+  a [ class "like-button", onClick ToggleLike ]
+    [
+      i [ class buttonCls ] []
+    ]
 
 viewDetailedPhoto : Model -> Html Msg
 viewDetailedPhoto model =
-  let 
-    buttonCls =
-      if model.liked then
-        "fas fa-heart"
-      else
-        "far fa-heart"
-    msg =
-      if model.liked then Unlike else Like
-  in
   div [ class "detailed-photo" ]
     [
       figure [ class "image" ]
@@ -46,10 +47,7 @@ viewDetailedPhoto model =
               h2 [ class "subtitle photo-caption" ]
                 [
                   text model.caption,
-                  a [ class "like-button", onClick msg ]
-                    [
-                      i [ class buttonCls ] []
-                    ]
+                  viewLikeButton model
                 ]
             ]
         ]
