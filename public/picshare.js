@@ -4363,13 +4363,51 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$h1 = _VirtualDom_node('h1');
+var elm$html$Html$nav = _VirtualDom_node('nav');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Picshare$main = A2(
 	elm$html$Html$div,
 	_List_Nil,
 	_List_fromArray(
 		[
-			elm$html$Html$text('Picshare')
+			A2(
+			elm$html$Html$nav,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('navbar')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('navbar-brand')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$h1,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('title navbar-item')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Picshare')
+								]))
+						]))
+				]))
 		]));
 _Platform_export({'Picshare':{'init':_VirtualDom_init(author$project$Picshare$main)(0)(0)}});}(this));
