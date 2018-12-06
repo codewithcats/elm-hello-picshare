@@ -5894,13 +5894,16 @@ var author$project$Picshare$fetchFeed = elm$http$Http$get(
 		url: 'https://programming-elm.com/feed/1'
 	});
 var author$project$Picshare$initialModel = {
-	caption: 'Surfing',
-	comments: _List_fromArray(
-		['Hello']),
-	id: 1,
-	liked: false,
-	newComment: '',
-	url: 'https://programming-elm.com/1.jpg'
+	photo: elm$core$Maybe$Just(
+		{
+			caption: 'Surfing',
+			comments: _List_fromArray(
+				['Hello']),
+			id: 1,
+			liked: false,
+			newComment: '',
+			url: 'https://programming-elm.com/1.jpg'
+		})
 };
 var author$project$Picshare$init = function (_n0) {
 	return _Utils_Tuple2(author$project$Picshare$initialModel, author$project$Picshare$fetchFeed);
@@ -5910,24 +5913,26 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Picshare$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
-var elm$core$String$trim = _String_trim;
-var author$project$Picshare$saveNewComment = function (model) {
-	var _n0 = elm$core$String$trim(model.newComment);
-	if (_n0 === '') {
-		return model;
-	} else {
-		return _Utils_update(
-			model,
-			{
-				comments: _Utils_ap(
-					model.comments,
-					_List_fromArray(
-						[model.newComment])),
-				newComment: ''
-			});
-	}
-};
 var elm$core$Basics$not = _Basics_not;
+var author$project$Picshare$toggleLike = function (photo) {
+	return _Utils_update(
+		photo,
+		{liked: !photo.liked});
+};
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var author$project$Picshare$updateFeed = F2(
+	function (updatePhoto, maybePhoto) {
+		return A2(elm$core$Maybe$map, updatePhoto, maybePhoto);
+	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Picshare$update = F2(
@@ -5937,19 +5942,12 @@ var author$project$Picshare$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{liked: !model.liked}),
+						{
+							photo: A2(author$project$Picshare$updateFeed, author$project$Picshare$toggleLike, model.photo)
+						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateComment':
-				var comment = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{newComment: comment}),
-					elm$core$Platform$Cmd$none);
-			case 'SaveComment':
-				return _Utils_Tuple2(
-					author$project$Picshare$saveNewComment(model),
-					elm$core$Platform$Cmd$none);
+			case 'LoadFeed':
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
@@ -6091,7 +6089,7 @@ var elm$html$Html$Events$onSubmit = function (msg) {
 			elm$html$Html$Events$alwaysPreventDefault,
 			elm$json$Json$Decode$succeed(msg)));
 };
-var author$project$Picshare$viewCommentForm = function (model) {
+var author$project$Picshare$viewCommentForm = function (photo) {
 	return A2(
 		elm$html$Html$form,
 		_List_fromArray(
@@ -6101,7 +6099,7 @@ var author$project$Picshare$viewCommentForm = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A3(author$project$Picshare$viewInputField, model.newComment, 'Add comment...', author$project$Picshare$UpdateComment),
+				A3(author$project$Picshare$viewInputField, photo.newComment, 'Add comment...', author$project$Picshare$UpdateComment),
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -6124,7 +6122,7 @@ var author$project$Picshare$viewCommentForm = function (model) {
 									[
 										elm$html$Html$Attributes$class('button is-link'),
 										elm$html$Html$Attributes$disabled(
-										elm$core$String$isEmpty(model.newComment))
+										elm$core$String$isEmpty(photo.newComment))
 									]),
 								_List_fromArray(
 									[
@@ -6204,8 +6202,8 @@ var elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		elm$json$Json$Decode$succeed(msg));
 };
-var author$project$Picshare$viewLikeButton = function (model) {
-	var buttonCls = model.liked ? 'fas fa-heart' : 'far fa-heart';
+var author$project$Picshare$viewLikeButton = function (photo) {
+	var buttonCls = photo.liked ? 'fas fa-heart' : 'far fa-heart';
 	return A2(
 		elm$html$Html$a,
 		_List_fromArray(
@@ -6233,7 +6231,7 @@ var elm$html$Html$Attributes$src = function (url) {
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
-var author$project$Picshare$viewDetailedPhoto = function (model) {
+var author$project$Picshare$viewDetailedPhoto = function (photo) {
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
@@ -6254,7 +6252,7 @@ var author$project$Picshare$viewDetailedPhoto = function (model) {
 						elm$html$Html$img,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$src(model.url)
+								elm$html$Html$Attributes$src(photo.url)
 							]),
 						_List_Nil),
 						A2(
@@ -6273,12 +6271,22 @@ var author$project$Picshare$viewDetailedPhoto = function (model) {
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(model.caption),
-										author$project$Picshare$viewLikeButton(model)
+										elm$html$Html$text(photo.caption),
+										author$project$Picshare$viewLikeButton(photo)
 									]))
-							]))
+							])),
+						author$project$Picshare$viewCommentList(photo.comments),
+						author$project$Picshare$viewCommentForm(photo)
 					]))
 			]));
+};
+var author$project$Picshare$viewFeed = function (maybePhoto) {
+	if (maybePhoto.$ === 'Just') {
+		var photo = maybePhoto.a;
+		return author$project$Picshare$viewDetailedPhoto(photo);
+	} else {
+		return elm$html$Html$text('');
+	}
 };
 var elm$html$Html$h1 = _VirtualDom_node('h1');
 var elm$html$Html$nav = _VirtualDom_node('nav');
@@ -6316,9 +6324,7 @@ var author$project$Picshare$view = function (model) {
 									]))
 							]))
 					])),
-				author$project$Picshare$viewDetailedPhoto(model),
-				author$project$Picshare$viewCommentList(model.comments),
-				author$project$Picshare$viewCommentForm(model)
+				author$project$Picshare$viewFeed(model.photo)
 			]));
 };
 var elm$browser$Browser$External = function (a) {

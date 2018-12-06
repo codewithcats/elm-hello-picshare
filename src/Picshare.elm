@@ -20,7 +20,10 @@ type alias Photo =
     newComment : String 
   }
 
-type alias Model = Photo
+type alias Model =
+  {
+    photo : Maybe Photo
+  }
 
 photoDecoder : Decoder Photo
 photoDecoder =
@@ -35,15 +38,19 @@ photoDecoder =
 initialModel : Model
 initialModel =
   {
-    id = 1,
-    url = "https://programming-elm.com/1.jpg",
-    caption = "Surfing",
-    liked = False,
-    comments =
-      [
-        "Hello"
-      ],
-    newComment = ""
+    photo =
+      Just
+        {
+          id = 1,
+          url = "https://programming-elm.com/1.jpg",
+          caption = "Surfing",
+          liked = False,
+          comments =
+            [
+              "Hello"
+            ],
+          newComment = ""
+        }
   }
 
 type Msg =
@@ -63,34 +70,43 @@ fetchFeed =
 init : () -> (Model, Cmd Msg)
 init () = (initialModel, fetchFeed)
 
-saveNewComment : Model -> Model
-saveNewComment model =
-  case String.trim model.newComment of
-    "" -> model
+saveNewComment : Photo -> Photo
+saveNewComment photo =
+  case String.trim photo.newComment of
+    "" -> photo
     _ ->
       {
-        model |
-        comments = model.comments ++ [ model.newComment ],
+        photo |
+        comments = photo.comments ++ [ photo.newComment ],
         newComment = ""
       }
+
+updateFeed : (Photo -> Photo) -> Maybe Photo -> Maybe Photo
+updateFeed updatePhoto maybePhoto =
+  Maybe.map updatePhoto maybePhoto
+
+toggleLike : Photo -> Photo
+toggleLike photo =
+  { photo | liked = not photo.liked }
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ToggleLike -> ({ model | liked = not model.liked }, Cmd.none)
-    UpdateComment comment -> ({ model | newComment = comment }, Cmd.none)
-    SaveComment -> (saveNewComment model, Cmd.none)
+    ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
+    -- UpdateComment comment -> ({ model | newComment = comment }, Cmd.none)
+    -- SaveComment -> (saveNewComment model, Cmd.none)
     LoadFeed _ -> (model, Cmd.none)
+    _ -> (model, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
 
-viewLikeButton : Model -> Html Msg
-viewLikeButton model =
+viewLikeButton : Photo -> Html Msg
+viewLikeButton photo =
   let
     buttonCls =
-      if model.liked then "fas fa-heart"
+      if photo.liked then "fas fa-heart"
       else "far fa-heart"
   in
   a [ class "like-button", onClick ToggleLike ]
@@ -128,15 +144,15 @@ viewInputField value placeholderText onInput =
       viewInput value placeholderText onInput
     ]
 
-viewCommentForm : Model -> Html Msg
-viewCommentForm model =
+viewCommentForm : Photo -> Html Msg
+viewCommentForm photo =
   form
     [
       class "photo-comment-form",
       onSubmit SaveComment
     ]
     [
-      viewInputField model.newComment "Add comment..." UpdateComment,
+      viewInputField photo.newComment "Add comment..." UpdateComment,
       div [ class "field" ]
         [
           div [ class "control" ]
@@ -144,7 +160,7 @@ viewCommentForm model =
               button
                 [
                   class "button is-link",
-                  disabled (String.isEmpty model.newComment)
+                  disabled (String.isEmpty photo.newComment)
                 ]
                 [ text "Add" ]
             ]
@@ -161,23 +177,31 @@ viewCommentList comments =
           ul [] (List.map viewComment comments)
         ]
 
-viewDetailedPhoto : Model -> Html Msg
-viewDetailedPhoto model =
+viewDetailedPhoto : Photo -> Html Msg
+viewDetailedPhoto photo =
   div [ class "detailed-photo" ]
     [
       figure [ class "image" ]
         [
-          img [ src model.url ] [],
+          img [ src photo.url ] [],
           div [ class "photo-info" ]
             [
               h2 [ class "subtitle photo-caption" ]
                 [
-                  text model.caption,
-                  viewLikeButton model
+                  text photo.caption,
+                  viewLikeButton photo
                 ]
-            ]
+            ],
+          viewCommentList photo.comments,
+          viewCommentForm photo
         ]
     ]
+
+viewFeed : Maybe Photo -> Html Msg
+viewFeed maybePhoto =
+  case maybePhoto of
+    Just photo -> viewDetailedPhoto photo
+    _ -> text ""
 
 view : Model -> Html Msg
 view model =
@@ -190,9 +214,7 @@ view model =
               h1 [ class "title navbar-item" ] [ text "Picshare" ]
             ]
         ],
-      viewDetailedPhoto model,
-      viewCommentList model.comments,
-      viewCommentForm model
+      viewFeed model.photo
     ]
 
 main : Program () Model Msg
