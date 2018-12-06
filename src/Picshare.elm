@@ -32,12 +32,23 @@ type Msg =
   | UpdateComment String
   | SaveComment
 
+saveNewComment : Model -> Model
+saveNewComment model =
+  case String.trim model.newComment of
+    "" -> model
+    _ ->
+      {
+        model |
+        comments = model.comments ++ [ model.newComment ],
+        newComment = ""
+      }
+
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     ToggleLike -> { model | liked = not model.liked }
     UpdateComment comment -> { model | newComment = comment }
-    _ -> model
+    SaveComment -> saveNewComment model
 
 viewLikeButton : Model -> Html Msg
 viewLikeButton model =
