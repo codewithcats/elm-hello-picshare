@@ -5913,12 +5913,35 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Picshare$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
+var elm$core$String$trim = _String_trim;
+var author$project$Picshare$saveNewComment = function (photo) {
+	var _n0 = elm$core$String$trim(photo.newComment);
+	if (_n0 === '') {
+		return photo;
+	} else {
+		return _Utils_update(
+			photo,
+			{
+				comments: _Utils_ap(
+					photo.comments,
+					_List_fromArray(
+						[photo.newComment])),
+				newComment: ''
+			});
+	}
+};
 var elm$core$Basics$not = _Basics_not;
 var author$project$Picshare$toggleLike = function (photo) {
 	return _Utils_update(
 		photo,
 		{liked: !photo.liked});
 };
+var author$project$Picshare$updateComment = F2(
+	function (comment, photo) {
+		return _Utils_update(
+			photo,
+			{newComment: comment});
+	});
 var elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5946,8 +5969,26 @@ var author$project$Picshare$update = F2(
 							photo: A2(author$project$Picshare$updateFeed, author$project$Picshare$toggleLike, model.photo)
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'LoadFeed':
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			case 'UpdateComment':
+				var comment = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							photo: A2(
+								author$project$Picshare$updateFeed,
+								author$project$Picshare$updateComment(comment),
+								model.photo)
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'SaveComment':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							photo: A2(author$project$Picshare$updateFeed, author$project$Picshare$saveNewComment, model.photo)
+						}),
+					elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}

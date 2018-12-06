@@ -89,14 +89,17 @@ toggleLike : Photo -> Photo
 toggleLike photo =
   { photo | liked = not photo.liked }
 
+updateComment : String -> Photo -> Photo
+updateComment comment photo =
+  { photo | newComment = comment }
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
-    -- UpdateComment comment -> ({ model | newComment = comment }, Cmd.none)
-    -- SaveComment -> (saveNewComment model, Cmd.none)
+    UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
+    SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
     LoadFeed _ -> (model, Cmd.none)
-    _ -> (model, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
