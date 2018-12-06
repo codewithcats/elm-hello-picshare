@@ -39,18 +39,7 @@ initialModel : Model
 initialModel =
   {
     photo =
-      Just
-        {
-          id = 1,
-          url = "https://programming-elm.com/1.jpg",
-          caption = "Surfing",
-          liked = False,
-          comments =
-            [
-              "Hello"
-            ],
-          newComment = ""
-        }
+      Nothing
   }
 
 type Msg =
@@ -99,7 +88,8 @@ update msg model =
     ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
     UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
     SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
-    LoadFeed _ -> (model, Cmd.none)
+    LoadFeed (Ok photo) -> ({ model | photo = Just photo }, Cmd.none)
+    LoadFeed (Err _) -> (model, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
