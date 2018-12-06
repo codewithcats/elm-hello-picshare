@@ -47,8 +47,8 @@ photoDecoder =
 
 type Msg =
   ToggleLike Id
-  | UpdateComment String
-  | SaveComment
+  | UpdateComment Id String
+  | SaveComment Id
   | LoadFeed (Result Http.Error Feed)
 
 fetchFeed : Cmd Msg
@@ -98,11 +98,10 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     ToggleLike id -> ({ model | feed = updateFeed toggleLike id model.feed }, Cmd.none)
-    -- UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
-    -- SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
+    UpdateComment id comment -> ({ model | feed = updateFeed (updateComment comment) id model.feed }, Cmd.none)
+    SaveComment id -> ({ model | feed = updateFeed saveNewComment id model.feed }, Cmd.none)
     LoadFeed (Ok feed) -> ({ model | feed = Just feed }, Cmd.none)
     LoadFeed (Err _) -> (model, Cmd.none)
-    _ -> (model, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -141,8 +140,8 @@ viewInput value_ placeholderText onInput_ =
           class "input",
           type_ "text",
           value value_,
-          placeholder placeholderText
-          -- onInput onInput_
+          placeholder placeholderText,
+          onInput onInput_
         ]
         []
     ]
@@ -158,11 +157,11 @@ viewCommentForm : Photo -> Html Msg
 viewCommentForm photo =
   form
     [
-      class "photo-comment-form"
-      -- onSubmit SaveComment
+      class "photo-comment-form",
+      onSubmit (SaveComment photo.id)
     ]
     [
-      viewInputField photo.newComment "Add comment..." UpdateComment,
+      viewInputField photo.newComment "Add comment..." (UpdateComment photo.id),
       div [ class "field" ]
         [
           div [ class "control" ]

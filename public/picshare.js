@@ -5905,12 +5905,35 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Picshare$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
+var elm$core$String$trim = _String_trim;
+var author$project$Picshare$saveNewComment = function (photo) {
+	var _n0 = elm$core$String$trim(photo.newComment);
+	if (_n0 === '') {
+		return photo;
+	} else {
+		return _Utils_update(
+			photo,
+			{
+				comments: _Utils_ap(
+					photo.comments,
+					_List_fromArray(
+						[photo.newComment])),
+				newComment: ''
+			});
+	}
+};
 var elm$core$Basics$not = _Basics_not;
 var author$project$Picshare$toggleLike = function (photo) {
 	return _Utils_update(
 		photo,
 		{liked: !photo.liked});
 };
+var author$project$Picshare$updateComment = F2(
+	function (comment, photo) {
+		return _Utils_update(
+			photo,
+			{newComment: comment});
+	});
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -5965,7 +5988,30 @@ var author$project$Picshare$update = F2(
 							feed: A3(author$project$Picshare$updateFeed, author$project$Picshare$toggleLike, id, model.feed)
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'LoadFeed':
+			case 'UpdateComment':
+				var id = msg.a;
+				var comment = msg.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							feed: A3(
+								author$project$Picshare$updateFeed,
+								author$project$Picshare$updateComment(comment),
+								id,
+								model.feed)
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'SaveComment':
+				var id = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							feed: A3(author$project$Picshare$updateFeed, author$project$Picshare$saveNewComment, id, model.feed)
+						}),
+					elm$core$Platform$Cmd$none);
+			default:
 				if (msg.a.$ === 'Ok') {
 					var feed = msg.a.a;
 					return _Utils_Tuple2(
@@ -5978,13 +6024,15 @@ var author$project$Picshare$update = F2(
 				} else {
 					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 				}
-			default:
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
-var author$project$Picshare$UpdateComment = function (a) {
-	return {$: 'UpdateComment', a: a};
+var author$project$Picshare$SaveComment = function (a) {
+	return {$: 'SaveComment', a: a};
 };
+var author$project$Picshare$UpdateComment = F2(
+	function (a, b) {
+		return {$: 'UpdateComment', a: a, b: b};
+	});
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
@@ -6012,6 +6060,38 @@ var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('cl
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
+};
 var author$project$Picshare$viewInput = F3(
 	function (value_, placeholderText, onInput_) {
 		return A2(
@@ -6029,7 +6109,8 @@ var author$project$Picshare$viewInput = F3(
 							elm$html$Html$Attributes$class('input'),
 							elm$html$Html$Attributes$type_('text'),
 							elm$html$Html$Attributes$value(value_),
-							elm$html$Html$Attributes$placeholder(placeholderText)
+							elm$html$Html$Attributes$placeholder(placeholderText),
+							elm$html$Html$Events$onInput(onInput_)
 						]),
 					_List_Nil)
 				]));
@@ -6063,16 +6144,44 @@ var elm$html$Html$Attributes$boolProperty = F2(
 			elm$json$Json$Encode$bool(bool));
 	});
 var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
+var elm$html$Html$Events$alwaysPreventDefault = function (msg) {
+	return _Utils_Tuple2(msg, true);
+};
+var elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
+	return {$: 'MayPreventDefault', a: a};
+};
+var elm$html$Html$Events$preventDefaultOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+	});
+var elm$html$Html$Events$onSubmit = function (msg) {
+	return A2(
+		elm$html$Html$Events$preventDefaultOn,
+		'submit',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysPreventDefault,
+			elm$json$Json$Decode$succeed(msg)));
+};
 var author$project$Picshare$viewCommentForm = function (photo) {
 	return A2(
 		elm$html$Html$form,
 		_List_fromArray(
 			[
-				elm$html$Html$Attributes$class('photo-comment-form')
+				elm$html$Html$Attributes$class('photo-comment-form'),
+				elm$html$Html$Events$onSubmit(
+				author$project$Picshare$SaveComment(photo.id))
 			]),
 		_List_fromArray(
 			[
-				A3(author$project$Picshare$viewInputField, photo.newComment, 'Add comment...', author$project$Picshare$UpdateComment),
+				A3(
+				author$project$Picshare$viewInputField,
+				photo.newComment,
+				'Add comment...',
+				author$project$Picshare$UpdateComment(photo.id)),
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
@@ -6150,7 +6259,6 @@ var elm$html$Html$i = _VirtualDom_node('i');
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$on = F2(
 	function (event, decoder) {
 		return A2(
