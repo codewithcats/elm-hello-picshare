@@ -4396,15 +4396,30 @@ var author$project$Picshare$initialModel = {
 	comments: _List_fromArray(
 		['Hello']),
 	liked: false,
+	newComment: '',
 	url: 'https://programming-elm.com/1.jpg'
 };
 var elm$core$Basics$not = _Basics_not;
 var author$project$Picshare$update = F2(
 	function (msg, model) {
-		return _Utils_update(
-			model,
-			{liked: !model.liked});
+		switch (msg.$) {
+			case 'ToggleLike':
+				return _Utils_update(
+					model,
+					{liked: !model.liked});
+			case 'UpdateComment':
+				var comment = msg.a;
+				return _Utils_update(
+					model,
+					{newComment: comment});
+			default:
+				return model;
+		}
 	});
+var author$project$Picshare$SaveComment = {$: 'SaveComment'};
+var author$project$Picshare$UpdateComment = function (a) {
+	return {$: 'UpdateComment', a: a};
+};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -4818,25 +4833,6 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$div = _VirtualDom_node('div');
-var elm$html$Html$strong = _VirtualDom_node('strong');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var author$project$Picshare$viewComment = function (comment) {
-	return A2(
-		elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$strong,
-				_List_Nil,
-				_List_fromArray(
-					[
-						elm$html$Html$text('Comment: ')
-					])),
-				elm$html$Html$text(comment)
-			]));
-};
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$json$Json$Encode$string = _Json_wrap;
 var elm$html$Html$Attributes$stringProperty = F2(
@@ -4849,78 +4845,20 @@ var elm$html$Html$Attributes$stringProperty = F2(
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
-var author$project$Picshare$viewInput = function (placeholderText) {
-	return A2(
-		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('control')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				elm$html$Html$input,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('input'),
-						elm$html$Html$Attributes$type_('text'),
-						elm$html$Html$Attributes$placeholder(placeholderText)
-					]),
-				_List_Nil)
-			]));
+var elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
 };
-var author$project$Picshare$viewInputField = function (placeholderText) {
-	return A2(
-		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('field')
-			]),
-		_List_fromArray(
-			[
-				author$project$Picshare$viewInput(placeholderText)
-			]));
+var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
 };
-var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$form = _VirtualDom_node('form');
-var author$project$Picshare$viewCommentForm = A2(
-	elm$html$Html$form,
-	_List_fromArray(
-		[
-			elm$html$Html$Attributes$class('photo-comment-form')
-		]),
-	_List_fromArray(
-		[
-			author$project$Picshare$viewInputField('Add comment...'),
-			A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('field')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('control')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$button,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('button is-link')
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text('Add')
-								]))
-						]))
-				]))
-		]));
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -4976,6 +4914,159 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$json$Json$Decode$string = _Json_decodeString;
+var elm$html$Html$Events$targetValue = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	elm$json$Json$Decode$string);
+var elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysStop,
+			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
+};
+var author$project$Picshare$viewInput = F2(
+	function (placeholderText, onInput_) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('control')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$input,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('input'),
+							elm$html$Html$Attributes$type_('text'),
+							elm$html$Html$Attributes$placeholder(placeholderText),
+							elm$html$Html$Events$onInput(onInput_)
+						]),
+					_List_Nil)
+				]));
+	});
+var author$project$Picshare$viewInputField = F2(
+	function (placeholderText, onInput_) {
+		return A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('field')
+				]),
+			_List_fromArray(
+				[
+					A2(author$project$Picshare$viewInput, placeholderText, onInput_)
+				]));
+	});
+var elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$form = _VirtualDom_node('form');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$bool = _Json_wrap;
+var elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$bool(bool));
+	});
+var elm$html$Html$Attributes$disabled = elm$html$Html$Attributes$boolProperty('disabled');
+var elm$html$Html$Events$alwaysPreventDefault = function (msg) {
+	return _Utils_Tuple2(msg, true);
+};
+var elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
+	return {$: 'MayPreventDefault', a: a};
+};
+var elm$html$Html$Events$preventDefaultOn = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+	});
+var elm$html$Html$Events$onSubmit = function (msg) {
+	return A2(
+		elm$html$Html$Events$preventDefaultOn,
+		'submit',
+		A2(
+			elm$json$Json$Decode$map,
+			elm$html$Html$Events$alwaysPreventDefault,
+			elm$json$Json$Decode$succeed(msg)));
+};
+var author$project$Picshare$viewCommentForm = function (model) {
+	return A2(
+		elm$html$Html$form,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('photo-comment-form'),
+				elm$html$Html$Events$onSubmit(author$project$Picshare$SaveComment)
+			]),
+		_List_fromArray(
+			[
+				A2(author$project$Picshare$viewInputField, 'Add comment...', author$project$Picshare$UpdateComment),
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('field')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('control')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$button,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('button is-link'),
+										elm$html$Html$Attributes$disabled(
+										elm$core$String$isEmpty(model.newComment))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Add')
+									]))
+							]))
+					]))
+			]));
+};
+var elm$html$Html$strong = _VirtualDom_node('strong');
+var author$project$Picshare$viewComment = function (comment) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$strong,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('Comment: ')
+					])),
+				elm$html$Html$text(comment)
+			]));
+};
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -5006,8 +5097,7 @@ var author$project$Picshare$viewCommentList = function (comments) {
 					A2(
 					elm$html$Html$ul,
 					_List_Nil,
-					A2(elm$core$List$map, author$project$Picshare$viewComment, comments)),
-					author$project$Picshare$viewCommentForm
+					A2(elm$core$List$map, author$project$Picshare$viewComment, comments))
 				]));
 	}
 };
@@ -5017,7 +5107,6 @@ var elm$html$Html$i = _VirtualDom_node('i');
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$on = F2(
 	function (event, decoder) {
 		return A2(
@@ -5144,7 +5233,8 @@ var author$project$Picshare$view = function (model) {
 							]))
 					])),
 				author$project$Picshare$viewDetailedPhoto(model),
-				author$project$Picshare$viewCommentList(model.comments)
+				author$project$Picshare$viewCommentList(model.comments),
+				author$project$Picshare$viewCommentForm(model)
 			]));
 };
 var elm$core$Platform$Cmd$batch = _Platform_batch;
@@ -5262,9 +5352,6 @@ var elm$core$String$startsWith = _String_startsWith;
 var elm$url$Url$Http = {$: 'Http'};
 var elm$url$Url$Https = {$: 'Https'};
 var elm$core$String$indexes = _String_indexes;
-var elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
 var elm$core$String$left = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);

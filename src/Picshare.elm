@@ -2,15 +2,16 @@ module Picshare exposing (main)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, src, type_, placeholder)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (class, src, type_, placeholder, disabled)
+import Html.Events exposing (onClick, onInput, onSubmit)
 
 type alias Model = 
   {
     url : String,
     caption : String,
-    liked: Bool,
-    comments: List String
+    liked : Bool,
+    comments : List String,
+    newComment : String 
   }
 
 initialModel : Model
@@ -22,16 +23,21 @@ initialModel =
     comments =
       [
         "Hello"
-      ]
+      ],
+    newComment = ""
   }
 
 type Msg =
   ToggleLike
+  | UpdateComment String
+  | SaveComment
 
 update : Msg -> Model -> Model
 update msg model =
   case msg of
     ToggleLike -> { model | liked = not model.liked }
+    UpdateComment comment -> { model | newComment = comment }
+    _ -> model
 
 viewLikeButton : Model -> Html Msg
 viewLikeButton model =
@@ -53,36 +59,46 @@ viewComment comment =
       text comment
     ]
 
-viewInput : String -> Html Msg
-viewInput placeholderText =
+viewInput : String -> (String -> Msg) -> Html Msg
+viewInput placeholderText onInput_ =
   div [ class "control" ]
     [
       input
         [
           class "input",
           type_ "text",
-          placeholder placeholderText
+          placeholder placeholderText,
+          onInput onInput_
         ]
         []
     ]
 
-viewInputField : String -> Html Msg
-viewInputField placeholderText =
+viewInputField : String -> (String -> Msg) -> Html Msg
+viewInputField placeholderText onInput_ =
   div [ class "field" ]
     [
-      viewInput placeholderText
+      viewInput placeholderText onInput_
     ]
 
-viewCommentForm : Html Msg
-viewCommentForm =
-  form [ class "photo-comment-form" ]
+viewCommentForm : Model -> Html Msg
+viewCommentForm model =
+  form
     [
-      viewInputField "Add comment...",
+      class "photo-comment-form",
+      onSubmit SaveComment
+    ]
+    [
+      viewInputField "Add comment..." UpdateComment,
       div [ class "field" ]
         [
           div [ class "control" ]
             [
-              button [ class "button is-link" ] [ text "Add" ]
+              button
+                [
+                  class "button is-link",
+                  disabled (String.isEmpty model.newComment)
+                ]
+                [ text "Add" ]
             ]
         ]
     ]
@@ -94,8 +110,7 @@ viewCommentList comments =
     _ ->
       div [ class "comment-list" ]
         [
-          ul [] (List.map viewComment comments),
-          viewCommentForm
+          ul [] (List.map viewComment comments)
         ]
 
 viewDetailedPhoto : Model -> Html Msg
@@ -128,7 +143,8 @@ view model =
             ]
         ],
       viewDetailedPhoto model,
-      viewCommentList model.comments
+      viewCommentList model.comments,
+      viewCommentForm model
     ]
 
 main : Program () Model Msg
