@@ -46,7 +46,7 @@ photoDecoder =
     |> hardcoded ""
 
 type Msg =
-  ToggleLike
+  ToggleLike Id
   | UpdateComment String
   | SaveComment
   | LoadFeed (Result Http.Error Feed)
@@ -73,9 +73,18 @@ saveNewComment photo =
         newComment = ""
       }
 
-updateFeed : (Photo -> Photo) -> Maybe Photo -> Maybe Photo
-updateFeed updatePhoto maybePhoto =
-  Maybe.map updatePhoto maybePhoto
+updatePhotoById : (Photo -> Photo) -> Id -> Feed -> Feed
+updatePhotoById updatePhoto id feed =
+  List.map
+    (\photo ->
+      if photo.id == id then updatePhoto photo
+      else photo
+    )
+    feed
+
+updateFeed : (Photo -> Photo) -> Id -> Maybe Feed -> Maybe Feed
+updateFeed updatePhoto id maybeFeed =
+  Maybe.map (updatePhotoById updatePhoto id) maybeFeed
 
 toggleLike : Photo -> Photo
 toggleLike photo =
@@ -88,7 +97,7 @@ updateComment comment photo =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    -- ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
+    ToggleLike id -> ({ model | feed = updateFeed toggleLike id model.feed }, Cmd.none)
     -- UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
     -- SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
     LoadFeed (Ok feed) -> ({ model | feed = Just feed }, Cmd.none)
@@ -108,8 +117,8 @@ viewLikeButton photo =
   in
   a
     [
-      class "like-button"
-      -- onClick ToggleLike
+      class "like-button",
+      onClick (ToggleLike photo.id)
     ]
     [
       i [ class buttonCls ] []

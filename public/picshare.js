@@ -5905,25 +5905,81 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Picshare$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
+var elm$core$Basics$not = _Basics_not;
+var author$project$Picshare$toggleLike = function (photo) {
+	return _Utils_update(
+		photo,
+		{liked: !photo.liked});
+};
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var author$project$Picshare$updatePhotoById = F3(
+	function (updatePhoto, id, feed) {
+		return A2(
+			elm$core$List$map,
+			function (photo) {
+				return _Utils_eq(photo.id, id) ? updatePhoto(photo) : photo;
+			},
+			feed);
+	});
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var author$project$Picshare$updateFeed = F3(
+	function (updatePhoto, id, maybeFeed) {
+		return A2(
+			elm$core$Maybe$map,
+			A2(author$project$Picshare$updatePhotoById, updatePhoto, id),
+			maybeFeed);
+	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Picshare$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'LoadFeed') {
-			if (msg.a.$ === 'Ok') {
-				var feed = msg.a.a;
+		switch (msg.$) {
+			case 'ToggleLike':
+				var id = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							feed: elm$core$Maybe$Just(feed)
+							feed: A3(author$project$Picshare$updateFeed, author$project$Picshare$toggleLike, id, model.feed)
 						}),
 					elm$core$Platform$Cmd$none);
-			} else {
+			case 'LoadFeed':
+				if (msg.a.$ === 'Ok') {
+					var feed = msg.a.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								feed: elm$core$Maybe$Just(feed)
+							}),
+						elm$core$Platform$Cmd$none);
+				} else {
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				}
+			default:
 				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-			}
-		} else {
-			return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 		}
 	});
 var author$project$Picshare$UpdateComment = function (a) {
@@ -6066,20 +6122,6 @@ var author$project$Picshare$viewComment = function (comment) {
 				elm$html$Html$text(comment)
 			]));
 };
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var elm$html$Html$ul = _VirtualDom_node('ul');
 var author$project$Picshare$viewCommentList = function (comments) {
 	if (!comments.b) {
@@ -6100,15 +6142,37 @@ var author$project$Picshare$viewCommentList = function (comments) {
 				]));
 	}
 };
+var author$project$Picshare$ToggleLike = function (a) {
+	return {$: 'ToggleLike', a: a};
+};
 var elm$html$Html$a = _VirtualDom_node('a');
 var elm$html$Html$i = _VirtualDom_node('i');
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
 var author$project$Picshare$viewLikeButton = function (photo) {
 	var buttonCls = photo.liked ? 'fas fa-heart' : 'far fa-heart';
 	return A2(
 		elm$html$Html$a,
 		_List_fromArray(
 			[
-				elm$html$Html$Attributes$class('like-button')
+				elm$html$Html$Attributes$class('like-button'),
+				elm$html$Html$Events$onClick(
+				author$project$Picshare$ToggleLike(photo.id))
 			]),
 		_List_fromArray(
 			[
