@@ -4837,6 +4837,90 @@ var author$project$Picshare$viewComment = function (comment) {
 				elm$html$Html$text(comment)
 			]));
 };
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
+var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var author$project$Picshare$viewInput = function (placeholderText) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('control')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$input,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('input'),
+						elm$html$Html$Attributes$type_('text'),
+						elm$html$Html$Attributes$placeholder(placeholderText)
+					]),
+				_List_Nil)
+			]));
+};
+var author$project$Picshare$viewInputField = function (placeholderText) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('field')
+			]),
+		_List_fromArray(
+			[
+				author$project$Picshare$viewInput(placeholderText)
+			]));
+};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$html$Html$form = _VirtualDom_node('form');
+var author$project$Picshare$viewCommentForm = A2(
+	elm$html$Html$form,
+	_List_fromArray(
+		[
+			elm$html$Html$Attributes$class('photo-comment-form')
+		]),
+	_List_fromArray(
+		[
+			author$project$Picshare$viewInputField('Add comment...'),
+			A2(
+			elm$html$Html$div,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('field')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('control')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$button,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$class('button is-link')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Add')
+								]))
+						]))
+				]))
+		]));
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -4907,15 +4991,6 @@ var elm$core$List$map = F2(
 			xs);
 	});
 var elm$html$Html$ul = _VirtualDom_node('ul');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Picshare$viewCommentList = function (comments) {
 	if (!comments.b) {
 		return elm$html$Html$text('');
@@ -4931,7 +5006,8 @@ var author$project$Picshare$viewCommentList = function (comments) {
 					A2(
 					elm$html$Html$ul,
 					_List_Nil,
-					A2(elm$core$List$map, author$project$Picshare$viewComment, comments))
+					A2(elm$core$List$map, author$project$Picshare$viewComment, comments)),
+					author$project$Picshare$viewCommentForm
 				]));
 	}
 };

@@ -2,7 +2,7 @@ module Picshare exposing (main)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, src)
+import Html.Attributes exposing (class, src, type_, placeholder)
 import Html.Events exposing (onClick)
 
 type alias Model = 
@@ -53,6 +53,40 @@ viewComment comment =
       text comment
     ]
 
+viewInput : String -> Html Msg
+viewInput placeholderText =
+  div [ class "control" ]
+    [
+      input
+        [
+          class "input",
+          type_ "text",
+          placeholder placeholderText
+        ]
+        []
+    ]
+
+viewInputField : String -> Html Msg
+viewInputField placeholderText =
+  div [ class "field" ]
+    [
+      viewInput placeholderText
+    ]
+
+viewCommentForm : Html Msg
+viewCommentForm =
+  form [ class "photo-comment-form" ]
+    [
+      viewInputField "Add comment...",
+      div [ class "field" ]
+        [
+          div [ class "control" ]
+            [
+              button [ class "button is-link" ] [ text "Add" ]
+            ]
+        ]
+    ]
+
 viewCommentList : List String -> Html Msg
 viewCommentList comments =
   case comments of
@@ -60,7 +94,8 @@ viewCommentList comments =
     _ ->
       div [ class "comment-list" ]
         [
-          ul [] (List.map viewComment comments)
+          ul [] (List.map viewComment comments),
+          viewCommentForm
         ]
 
 viewDetailedPhoto : Model -> Html Msg
