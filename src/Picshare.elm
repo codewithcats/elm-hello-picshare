@@ -20,9 +20,19 @@ type alias Photo =
     newComment : String 
   }
 
+type alias Feed =
+  List Photo
+
 type alias Model =
   {
-    photo : Maybe Photo
+    feed : Maybe Feed
+  }
+
+initialModel : Model
+initialModel =
+  {
+    feed =
+      Nothing
   }
 
 photoDecoder : Decoder Photo
@@ -35,25 +45,18 @@ photoDecoder =
     |> required "comments" (list string)
     |> hardcoded ""
 
-initialModel : Model
-initialModel =
-  {
-    photo =
-      Nothing
-  }
-
 type Msg =
   ToggleLike
   | UpdateComment String
   | SaveComment
-  | LoadFeed (Result Http.Error Photo)
+  | LoadFeed (Result Http.Error Feed)
 
 fetchFeed : Cmd Msg
 fetchFeed =
   Http.get
     {
-      url = "https://programming-elm.com/feed/1",
-      expect = Http.expectJson LoadFeed photoDecoder
+      url = "https://programming-elm.com/feed",
+      expect = Http.expectJson LoadFeed (list photoDecoder)
     }
 
 init : () -> (Model, Cmd Msg)
@@ -85,11 +88,12 @@ updateComment comment photo =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
-    UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
-    SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
-    LoadFeed (Ok photo) -> ({ model | photo = Just photo }, Cmd.none)
+    -- ToggleLike -> ({ model | photo = updateFeed toggleLike model.photo }, Cmd.none)
+    -- UpdateComment comment -> ({ model | photo = updateFeed (updateComment comment) model.photo }, Cmd.none)
+    -- SaveComment -> ({ model | photo = updateFeed saveNewComment model.photo }, Cmd.none)
+    LoadFeed (Ok feed) -> ({ model | feed = Just feed }, Cmd.none)
     LoadFeed (Err _) -> (model, Cmd.none)
+    _ -> (model, Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -102,7 +106,11 @@ viewLikeButton photo =
       if photo.liked then "fas fa-heart"
       else "far fa-heart"
   in
-  a [ class "like-button", onClick ToggleLike ]
+  a
+    [
+      class "like-button"
+      -- onClick ToggleLike
+    ]
     [
       i [ class buttonCls ] []
     ]
@@ -124,8 +132,8 @@ viewInput value_ placeholderText onInput_ =
           class "input",
           type_ "text",
           value value_,
-          placeholder placeholderText,
-          onInput onInput_
+          placeholder placeholderText
+          -- onInput onInput_
         ]
         []
     ]
@@ -141,8 +149,8 @@ viewCommentForm : Photo -> Html Msg
 viewCommentForm photo =
   form
     [
-      class "photo-comment-form",
-      onSubmit SaveComment
+      class "photo-comment-form"
+      -- onSubmit SaveComment
     ]
     [
       viewInputField photo.newComment "Add comment..." UpdateComment,
@@ -190,10 +198,11 @@ viewDetailedPhoto photo =
         ]
     ]
 
-viewFeed : Maybe Photo -> Html Msg
-viewFeed maybePhoto =
-  case maybePhoto of
-    Just photo -> viewDetailedPhoto photo
+viewFeed : Maybe Feed -> Html Msg
+viewFeed maybeFeed =
+  case maybeFeed of
+    Just feed ->
+      div [] (List.map viewDetailedPhoto feed)
     _ -> text ""
 
 view : Model -> Html Msg
@@ -207,7 +216,7 @@ view model =
               h1 [ class "title navbar-item" ] [ text "Picshare" ]
             ]
         ],
-      viewFeed model.photo
+      viewFeed model.feed
     ]
 
 main : Program () Model Msg
