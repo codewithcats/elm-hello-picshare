@@ -5,14 +5,24 @@ import Html exposing (..)
 import Html.Attributes exposing (class, src)
 import Html.Events exposing (onClick)
 
-type alias Model = { url : String, caption : String, liked: Bool }
+type alias Model = 
+  {
+    url : String,
+    caption : String,
+    liked: Bool,
+    comments: List String
+  }
 
 initialModel : Model
 initialModel =
   {
     url = "https://programming-elm.com/1.jpg",
     caption = "Surfing",
-    liked = False
+    liked = False,
+    comments =
+      [
+        "Hello"
+      ]
   }
 
 type Msg =
@@ -34,6 +44,24 @@ viewLikeButton model =
     [
       i [ class buttonCls ] []
     ]
+
+viewComment : String -> Html Msg
+viewComment comment =
+  div []
+    [
+      strong [] [ text "Comment: " ],
+      text comment
+    ]
+
+viewCommentList : List String -> Html Msg
+viewCommentList comments =
+  case comments of
+    [] -> text ""
+    _ ->
+      div [ class "comment-list" ]
+        [
+          ul [] (List.map viewComment comments)
+        ]
 
 viewDetailedPhoto : Model -> Html Msg
 viewDetailedPhoto model =
@@ -64,7 +92,8 @@ view model =
               h1 [ class "title navbar-item" ] [ text "Picshare" ]
             ]
         ],
-      viewDetailedPhoto model
+      viewDetailedPhoto model,
+      viewCommentList model.comments
     ]
 
 main : Program () Model Msg
