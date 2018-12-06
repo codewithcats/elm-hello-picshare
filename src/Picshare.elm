@@ -4,9 +4,14 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class, src, type_, placeholder, disabled, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Json.Decode exposing (Decoder, bool, int, list, string, succeed)
+import Json.Decode.Pipeline exposing (hardcoded, required)
 
-type alias Model = 
+type alias Id = Int
+
+type alias Photo =
   {
+    id : Id,
     url : String,
     caption : String,
     liked : Bool,
@@ -14,9 +19,22 @@ type alias Model =
     newComment : String 
   }
 
+type alias Model = Photo
+
+photoDecoder : Decoder Photo
+photoDecoder =
+  succeed Photo
+    |> required "id" int
+    |> required "url" string
+    |> required "caption" string
+    |> required "liked" bool
+    |> required "comments" (list string)
+    |> hardcoded ""
+
 initialModel : Model
 initialModel =
   {
+    id = 1,
     url = "https://programming-elm.com/1.jpg",
     caption = "Surfing",
     liked = False,
