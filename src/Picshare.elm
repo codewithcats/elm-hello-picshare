@@ -2,7 +2,7 @@ module Picshare exposing (main)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (class, src, type_, placeholder, disabled)
+import Html.Attributes exposing (class, src, type_, placeholder, disabled, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 
 type alias Model = 
@@ -70,25 +70,26 @@ viewComment comment =
       text comment
     ]
 
-viewInput : String -> (String -> Msg) -> Html Msg
-viewInput placeholderText onInput_ =
+viewInput : String -> String -> (String -> Msg) -> Html Msg
+viewInput value_ placeholderText onInput_ =
   div [ class "control" ]
     [
       input
         [
           class "input",
           type_ "text",
+          value value_,
           placeholder placeholderText,
           onInput onInput_
         ]
         []
     ]
 
-viewInputField : String -> (String -> Msg) -> Html Msg
-viewInputField placeholderText onInput_ =
+viewInputField : String -> String -> (String -> Msg) -> Html Msg
+viewInputField value placeholderText onInput =
   div [ class "field" ]
     [
-      viewInput placeholderText onInput_
+      viewInput value placeholderText onInput
     ]
 
 viewCommentForm : Model -> Html Msg
@@ -99,7 +100,7 @@ viewCommentForm model =
       onSubmit SaveComment
     ]
     [
-      viewInputField "Add comment..." UpdateComment,
+      viewInputField model.newComment "Add comment..." UpdateComment,
       div [ class "field" ]
         [
           div [ class "control" ]

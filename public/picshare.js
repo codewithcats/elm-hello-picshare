@@ -4862,6 +4862,7 @@ var elm$html$Html$Attributes$stringProperty = F2(
 var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$html$Html$Attributes$placeholder = elm$html$Html$Attributes$stringProperty('placeholder');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -4951,8 +4952,8 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			elm$html$Html$Events$alwaysStop,
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
-var author$project$Picshare$viewInput = F2(
-	function (placeholderText, onInput_) {
+var author$project$Picshare$viewInput = F3(
+	function (value_, placeholderText, onInput_) {
 		return A2(
 			elm$html$Html$div,
 			_List_fromArray(
@@ -4967,14 +4968,15 @@ var author$project$Picshare$viewInput = F2(
 						[
 							elm$html$Html$Attributes$class('input'),
 							elm$html$Html$Attributes$type_('text'),
+							elm$html$Html$Attributes$value(value_),
 							elm$html$Html$Attributes$placeholder(placeholderText),
 							elm$html$Html$Events$onInput(onInput_)
 						]),
 					_List_Nil)
 				]));
 	});
-var author$project$Picshare$viewInputField = F2(
-	function (placeholderText, onInput_) {
+var author$project$Picshare$viewInputField = F3(
+	function (value, placeholderText, onInput) {
 		return A2(
 			elm$html$Html$div,
 			_List_fromArray(
@@ -4983,7 +4985,7 @@ var author$project$Picshare$viewInputField = F2(
 				]),
 			_List_fromArray(
 				[
-					A2(author$project$Picshare$viewInput, placeholderText, onInput_)
+					A3(author$project$Picshare$viewInput, value, placeholderText, onInput)
 				]));
 	});
 var elm$core$String$isEmpty = function (string) {
@@ -5034,7 +5036,7 @@ var author$project$Picshare$viewCommentForm = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2(author$project$Picshare$viewInputField, 'Add comment...', author$project$Picshare$UpdateComment),
+				A3(author$project$Picshare$viewInputField, model.newComment, 'Add comment...', author$project$Picshare$UpdateComment),
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
