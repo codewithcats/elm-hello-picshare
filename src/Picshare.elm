@@ -6,6 +6,7 @@ import Html.Attributes exposing (class, src, type_, placeholder, disabled, value
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode exposing (Decoder, bool, int, list, string, succeed)
 import Json.Decode.Pipeline exposing (hardcoded, required)
+import Http
 
 type alias Id = Int
 
@@ -49,6 +50,18 @@ type Msg =
   ToggleLike
   | UpdateComment String
   | SaveComment
+  | LoadFeed (Result Http.Error Photo)
+
+fetchFeed : Cmd Msg
+fetchFeed =
+  Http.get
+    {
+      url = "https://programming-elm.com/feed/1",
+      expect = Http.expectJson LoadFeed photoDecoder
+    }
+
+init : () -> (Model, Cmd Msg)
+init () = (initialModel, fetchFeed)
 
 saveNewComment : Model -> Model
 saveNewComment model =
@@ -61,12 +74,17 @@ saveNewComment model =
         newComment = ""
       }
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    ToggleLike -> { model | liked = not model.liked }
-    UpdateComment comment -> { model | newComment = comment }
-    SaveComment -> saveNewComment model
+    ToggleLike -> ({ model | liked = not model.liked }, Cmd.none)
+    UpdateComment comment -> ({ model | newComment = comment }, Cmd.none)
+    SaveComment -> (saveNewComment model, Cmd.none)
+    LoadFeed _ -> (model, Cmd.none)
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 viewLikeButton : Model -> Html Msg
 viewLikeButton model =
@@ -178,9 +196,10 @@ view model =
     ]
 
 main : Program () Model Msg
-main = Browser.sandbox
+main = Browser.element
   {
-    init = initialModel,
+    init = init,
     view = view,
-    update = update
+    update = update,
+    subscriptions = subscriptions
   }
